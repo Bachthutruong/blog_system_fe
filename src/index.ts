@@ -12,6 +12,29 @@ import userRoutes from './routes/users';
 // Load environment variables
 dotenv.config();
 
+// Debug environment loading
+console.log('🔍 Environment Debug:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+console.log('CLOUDINARY_CLOUD_NAME exists:', !!process.env.CLOUDINARY_CLOUD_NAME);
+
+// Validate required environment variables
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvVars);
+  console.error('💡 Make sure these are set in your deployment platform:');
+  missingEnvVars.forEach(envVar => {
+    console.error(`   - ${envVar}`);
+  });
+  process.exit(1);
+}
+
+console.log('✅ Environment variables loaded successfully');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -78,10 +101,21 @@ app.use('*', (req, res) => {
 // Connect to MongoDB
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI!);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    const mongoUri = process.env.MONGODB_URI;
+    
+    if (!mongoUri) {
+      console.error('❌ MONGODB_URI environment variable is not defined');
+      console.log('Available environment variables:', Object.keys(process.env).filter(key => key.includes('MONGO')));
+      process.exit(1);
+    }
+    
+    console.log('🔄 Connecting to MongoDB...');
+    console.log('MongoDB URI exists:', !!mongoUri);
+    
+    const conn = await mongoose.connect(mongoUri);
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
+    console.error('❌ Error connecting to MongoDB:', error);
     process.exit(1);
   }
 };

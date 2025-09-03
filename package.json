@@ -12,7 +12,8 @@
     "create-employee": "ts-node src/scripts/createEmployee.ts",
     "reset-admin": "ts-node src/scripts/resetAdminPassword.ts",
     "setup-users": "npm run create-admin && npm run create-employee",
-    "test-db": "ts-node src/scripts/testConnection.ts"
+    "test-db": "ts-node src/scripts/testConnection.ts",
+    "check-env": "ts-node src/scripts/checkEnv.ts"
   },
   "dependencies": {
     "express": "^4.18.2",
