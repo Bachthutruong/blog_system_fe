@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "npm run build && node dist/index.js",
+    "start:prod": "node dist/index.js",
     "create-admin": "ts-node src/scripts/createAdmin.ts",
     "create-employee": "ts-node src/scripts/createEmployee.ts",
     "reset-admin": "ts-node src/scripts/resetAdminPassword.ts",
