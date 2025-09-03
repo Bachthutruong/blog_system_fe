@@ -22,6 +22,15 @@ export const compressAndUploadImage = async (
   mimetype?: string
 ): Promise<UploadResult> => {
   try {
+    // Validate input
+    if (!buffer || buffer.length === 0) {
+      throw new Error('Invalid buffer provided');
+    }
+
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      throw new Error('Cloudinary configuration is missing');
+    }
+
     // Determine output format based on input
     const normalizedMime = (mimetype || '').toLowerCase();
     const format = normalizedMime.includes('png')
@@ -29,6 +38,8 @@ export const compressAndUploadImage = async (
       : normalizedMime.includes('webp')
         ? 'webp'
         : 'jpeg';
+
+    console.log(`Compressing image: ${imageName} (${buffer.length} bytes) -> ${format}`);
 
     // Compress image using Sharp
     const pipeline = sharp(buffer)
@@ -42,34 +53,48 @@ export const compressAndUploadImage = async (
       .toFormat(format as any, { quality })
       .toBuffer();
 
-    // Upload to Cloudinary
-    const result = await new Promise<UploadResult>((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'blog-images',
-          public_id: `blog_${Date.now()}_${imageName.replace(/\s+/g, '_')}`,
-          transformation: [{ quality: 'auto:good', fetch_format: 'auto' }]
-        },
-        (error, result) => {
-          if (error) {
-            reject(error);
-          } else if (result) {
-            resolve({
-              url: result.secure_url,
-              publicId: result.public_id,
-              width: result.width || 0,
-              height: result.height || 0
-            });
-          }
-        }
-      );
+    console.log(`Compressed: ${buffer.length} bytes -> ${compressedBuffer.length} bytes`);
 
-      uploadStream.end(compressedBuffer);
-    });
+    // Upload to Cloudinary with timeout
+    const result = await Promise.race([
+      new Promise<UploadResult>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'blog-images',
+            public_id: `blog_${Date.now()}_${imageName.replace(/\s+/g, '_')}`,
+            transformation: [{ quality: 'auto:good', fetch_format: 'auto' }],
+            resource_type: 'image'
+          },
+          (error, result) => {
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              reject(new Error(`Cloudinary upload failed: ${error.message}`));
+            } else if (result) {
+              console.log(`Cloudinary upload success: ${result.secure_url}`);
+              resolve({
+                url: result.secure_url,
+                publicId: result.public_id,
+                width: result.width || 0,
+                height: result.height || 0
+              });
+            } else {
+              reject(new Error('Cloudinary upload returned no result'));
+            }
+          }
+        );
+
+        uploadStream.end(compressedBuffer);
+      }),
+      new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000);
+      })
+    ]);
 
     return result;
   } catch (error) {
-    throw new Error(`Failed to compress and upload image: ${error}`);
+    console.error(`Failed to compress and upload image "${imageName}":`, error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to compress and upload image: ${errorMessage}`);
   }
 };
 

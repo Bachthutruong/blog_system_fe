@@ -5,6 +5,8 @@ import {
   uploadImages,
   updatePost,
   deletePost,
+  deleteImageFromPost,
+  updateImageName,
   getPosts,
   getPostById,
   getPostHistory
@@ -39,6 +41,8 @@ router.post('/', auth, requireEmployee, createPost);
 router.put('/:postId', auth, requireEmployee, updatePost);
 // Accept any multipart files to be tolerant of different field names
 router.post('/:postId/images', auth, requireEmployee, upload.any(), uploadImages);
+router.put('/:postId/images/:imageId', auth, requireEmployee, updateImageName);
+router.delete('/:postId/images/:imageId', auth, requireEmployee, deleteImageFromPost);
 
 // Admin only routes
 router.delete('/:postId', auth, requireAdmin, deletePost);

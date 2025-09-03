@@ -13,8 +13,13 @@ const testConnection = async () => {
     console.log('✅ MongoDB connected successfully!');
     
     // Test database operations
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    console.log('Available collections:', collections.map(c => c.name));
+    const db = mongoose.connection.db;
+    if (db) {
+      const collections = await db.listCollections().toArray();
+      console.log('Available collections:', collections.map(c => c.name));
+    } else {
+      console.log('Database connection not available');
+    }
     
     process.exit(0);
   } catch (error) {
