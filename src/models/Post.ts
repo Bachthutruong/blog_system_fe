@@ -50,13 +50,15 @@ const postSchema = new Schema<IPost>({
   },
   description: {
     type: String,
-    required: true,
+    required: false,
+    default: '',
     trim: true,
     maxlength: 500
   },
   content: {
     type: String,
-    required: true
+    required: false,
+    default: ''
   },
   images: [postImageSchema],
   author: {

@@ -29,11 +29,13 @@ const postHistorySchema = new Schema<IPostHistory>({
   },
   description: {
     type: String,
-    required: true
+    required: false,
+    default: ''
   },
   content: {
     type: String,
-    required: true
+    required: false,
+    default: ''
   },
   images: [{
     name: String,

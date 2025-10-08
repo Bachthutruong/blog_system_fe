@@ -40,12 +40,13 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     res.status(201).json({
       success: true,
       data: post,
-      message: 'Post created successfully'
+      message: '文章建立成功'
     });
   } catch (error) {
+    const msg = error instanceof Error ? error.message : '伺服器內部錯誤';
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: msg || '伺服器內部錯誤'
     });
   }
 };
@@ -56,7 +57,7 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
     let { imageNames } = req.body as { imageNames?: string | string[] };
     // Ensure multipart/form-data
     if (!req.is('multipart/form-data')) {
-      return res.status(400).json({ success: false, error: 'Content-Type must be multipart/form-data' });
+      return res.status(400).json({ success: false, error: 'Content-Type 必須為 multipart/form-data' });
     }
 
     const files = req.files as Express.Multer.File[];
@@ -73,7 +74,7 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
     if (!files || files.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'No images provided'
+        error: '未提供任何圖片'
       });
     }
 
@@ -91,7 +92,7 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        error: 'Post not found'
+        error: '找不到文章'
       });
     }
 
@@ -99,7 +100,7 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
     if (post.author.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        error: 'Access denied'
+        error: '拒絕存取'
       });
     }
 
@@ -108,7 +109,7 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
     if (emptyFile) {
       return res.status(400).json({
         success: false,
-        error: 'One or more files are empty. Make sure to send multipart/form-data correctly.'
+        error: '部分檔案為空，請確認以正確的 multipart/form-data 上傳'
       });
     }
 
@@ -171,11 +172,11 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
     await postHistory.save();
 
     // Prepare response message
-    let message = 'Images uploaded successfully';
+    let message = '圖片上傳成功';
     if (uploadedImages.length === 0) {
-      message = 'All images failed to upload';
+      message = '所有圖片上傳失敗';
     } else if (uploadedImages.length < files.length) {
-      message = `${uploadedImages.length}/${files.length} images uploaded successfully. Some images failed to upload.`;
+      message = `${uploadedImages.length}/${files.length} 張圖片上傳成功，部分圖片上傳失敗`;
     }
 
     res.json({
@@ -188,7 +189,7 @@ export const uploadImages = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -202,7 +203,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        error: 'Post not found'
+        error: '找不到文章'
       });
     }
 
@@ -214,7 +215,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     if (!isAuthor && !isAdmin) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied. You can only edit your own posts.'
+        error: '拒絕存取：您只能編輯自己的文章'
       });
     }
     
@@ -222,7 +223,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     if (!isAuthor && req.user.role === 'employee' && (post.author as any).role === 'admin') {
       return res.status(403).json({
         success: false,
-        error: 'Access denied. Staff cannot edit admin posts.'
+        error: '拒絕存取：員工不可編輯管理員的文章'
       });
     }
 
@@ -252,12 +253,12 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       data: post,
-      message: 'Post updated successfully'
+      message: '文章更新成功'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -270,7 +271,7 @@ export const updateImageName = async (req: AuthRequest, res: Response) => {
     if (!name || !name.trim()) {
       return res.status(400).json({
         success: false,
-        error: 'Image name is required'
+        error: '圖片名稱為必填'
       });
     }
 
@@ -278,7 +279,7 @@ export const updateImageName = async (req: AuthRequest, res: Response) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        error: 'Post not found'
+        error: '找不到文章'
       });
     }
 
@@ -286,7 +287,7 @@ export const updateImageName = async (req: AuthRequest, res: Response) => {
     if (post.author.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        error: 'Access denied'
+        error: '拒絕存取'
       });
     }
 
@@ -295,7 +296,7 @@ export const updateImageName = async (req: AuthRequest, res: Response) => {
     if (imageIndex === -1) {
       return res.status(404).json({
         success: false,
-        error: 'Image not found'
+        error: '找不到圖片'
       });
     }
 
@@ -317,13 +318,13 @@ export const updateImageName = async (req: AuthRequest, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Image name updated successfully',
+      message: '圖片名稱更新成功',
       data: post.images[imageIndex]
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -336,7 +337,7 @@ export const deleteImageFromPost = async (req: AuthRequest, res: Response) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        error: 'Post not found'
+        error: '找不到文章'
       });
     }
 
@@ -344,7 +345,7 @@ export const deleteImageFromPost = async (req: AuthRequest, res: Response) => {
     if (post.author.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        error: 'Access denied'
+        error: '拒絕存取'
       });
     }
 
@@ -353,7 +354,7 @@ export const deleteImageFromPost = async (req: AuthRequest, res: Response) => {
     if (imageIndex === -1) {
       return res.status(404).json({
         success: false,
-        error: 'Image not found'
+        error: '找不到圖片'
       });
     }
 
@@ -363,7 +364,7 @@ export const deleteImageFromPost = async (req: AuthRequest, res: Response) => {
     try {
       await deleteImage(imageToDelete.publicId);
     } catch (cloudinaryError) {
-      console.error('Failed to delete from Cloudinary:', cloudinaryError);
+      console.error('刪除 Cloudinary 圖片失敗:', cloudinaryError);
       // Continue anyway to remove from database
     }
 
@@ -385,12 +386,12 @@ export const deleteImageFromPost = async (req: AuthRequest, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Image deleted successfully'
+      message: '圖片刪除成功'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -403,7 +404,7 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        error: 'Post not found'
+        error: '找不到文章'
       });
     }
 
@@ -411,7 +412,7 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
     if (req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        error: 'Access denied. Only admins can delete posts.'
+        error: '拒絕存取：僅管理員可刪除文章'
       });
     }
 
@@ -425,12 +426,12 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Post deleted successfully'
+      message: '文章刪除成功'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -471,7 +472,7 @@ export const getPosts = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -486,7 +487,7 @@ export const getPostById = async (req: Request, res: Response) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        error: 'Post not found'
+        error: '找不到文章'
       });
     }
 
@@ -497,7 +498,7 @@ export const getPostById = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -517,7 +518,7 @@ export const getPostHistory = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };

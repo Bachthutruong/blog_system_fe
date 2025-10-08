@@ -15,7 +15,7 @@ export const register = async (req: Request, res: Response) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: 'User with this email or username already exists'
+        error: '此電子郵件或使用者名稱已被使用'
       });
     }
 
@@ -52,12 +52,12 @@ export const register = async (req: Request, res: Response) => {
         user: userResponse,
         token
       },
-      message: 'User registered successfully'
+      message: '註冊成功'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -71,7 +71,7 @@ export const login = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        error: 'Invalid email or password'
+        error: '電子郵件或密碼不正確'
       });
     }
 
@@ -80,7 +80,7 @@ export const login = async (req: Request, res: Response) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        error: 'Invalid email or password'
+        error: '電子郵件或密碼不正確'
       });
     }
 
@@ -107,12 +107,12 @@ export const login = async (req: Request, res: Response) => {
         user: userResponse,
         token
       },
-      message: 'Login successful'
+      message: '登入成功'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -127,7 +127,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };

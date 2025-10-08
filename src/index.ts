@@ -60,7 +60,7 @@ app.use('/api/users', userRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ 
     success: true, 
-    message: 'Server is running',
+    message: '伺服器運行中',
     timestamp: new Date().toISOString()
   });
 });
@@ -73,20 +73,20 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        error: 'File too large. Maximum size is 5MB.'
+        error: '檔案過大，最大限制為 5MB'
       });
     }
     if (err.code === 'LIMIT_FILE_COUNT') {
       return res.status(400).json({
         success: false,
-        error: 'Too many files. Maximum is 10 files.'
+        error: '檔案數量過多，最多 10 個檔案'
       });
     }
   }
 
   res.status(500).json({
     success: false,
-    error: 'Something went wrong!'
+    error: '發生錯誤'
   });
 });
 
@@ -94,7 +94,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Route not found'
+    error: '找不到路由'
   });
 });
 

@@ -47,3 +47,4 @@ if (missingRequired.length > 0) {
 } else {
   console.log('\n✅ All required environment variables are set!');
 }
+

@@ -16,7 +16,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -31,12 +31,12 @@ export const createUserByAdmin = async (req: AuthRequest, res: Response) => {
     };
 
     if (!username || !email || !password) {
-      return res.status(400).json({ success: false, error: 'Missing required fields' });
+      return res.status(400).json({ success: false, error: '缺少必填欄位' });
     }
 
     const existing = await User.findOne({ $or: [{ email }, { username }] });
     if (existing) {
-      return res.status(400).json({ success: false, error: 'User with this email or username already exists' });
+      return res.status(400).json({ success: false, error: '此電子郵件或使用者名稱已被使用' });
     }
 
     const newUser = new User({ username, email, password, role: role || 'employee' });
@@ -51,9 +51,9 @@ export const createUserByAdmin = async (req: AuthRequest, res: Response) => {
       updatedAt: newUser.updatedAt
     };
 
-    res.status(201).json({ success: true, data: userResponse, message: 'User created successfully' });
+    res.status(201).json({ success: true, data: userResponse, message: '使用者建立成功' });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Internal server error' });
+    res.status(500).json({ success: false, error: '伺服器內部錯誤' });
   }
 };
 
@@ -65,7 +65,7 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        error: 'User not found'
+        error: '找不到使用者'
       });
     }
 
@@ -76,7 +76,7 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -90,7 +90,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        error: 'User not found'
+        error: '找不到使用者'
       });
     }
 
@@ -98,7 +98,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
     if (userId === req.user._id.toString() && role && role !== req.user.role) {
       return res.status(400).json({
         success: false,
-        error: 'Cannot change your own role'
+        error: '不可更改自己的角色'
       });
     }
 
@@ -121,12 +121,12 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       data: userResponse,
-      message: 'User updated successfully'
+      message: '使用者更新成功'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -139,7 +139,7 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
     if (userId === req.user._id.toString()) {
       return res.status(400).json({
         success: false,
-        error: 'Cannot delete your own account'
+        error: '不可刪除自己的帳號'
       });
     }
 
@@ -147,7 +147,7 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        error: 'User not found'
+        error: '找不到使用者'
       });
     }
 
@@ -155,7 +155,7 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
     if (user.role === 'admin') {
       return res.status(400).json({
         success: false,
-        error: 'Cannot delete admin users'
+        error: '不可刪除管理員帳號'
       });
     }
 
@@ -163,12 +163,12 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
 
     res.json({
       success: true,
-      message: 'User deleted successfully'
+      message: '使用者刪除成功'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
@@ -182,7 +182,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        error: 'User not found'
+        error: '找不到使用者'
       });
     }
 
@@ -191,7 +191,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
     if (!isPasswordValid) {
       return res.status(400).json({
         success: false,
-        error: 'Current password is incorrect'
+        error: '目前密碼不正確'
       });
     }
 
@@ -201,12 +201,12 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Password changed successfully'
+      message: '密碼變更成功'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: '伺服器內部錯誤'
     });
   }
 };
